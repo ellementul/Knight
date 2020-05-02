@@ -1,0 +1,35 @@
+{
+  "name": "knight",
+  "version": "0.0.1",
+  "description": "2d game",
+  "main": "main.js",
+  "scripts": {
+    "http": "node ./http.js",
+    "test": "test.js",
+    "build-js": "browserify ./main.js -o ./public/bundle.js -d",
+    "watch-js": "watchify ./main.js -o ./public/bundle.js -d"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ellementul/Knight.git"
+  },
+  "keywords": [
+    "game",
+    "2d",
+    "platformer"
+  ],
+  "author": "Ellementul",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ellementul/Knight/issues"
+  },
+  "homepage": "https://github.com/ellementul/Knight#readme",
+  "dependencies": {
+    "node-static": "^0.7.11",
+    "pixi.js": "^5.2.3"
+  },
+  "devDependencies": {
+    "browserify": "^16.5.1",
+    "watchify": "^3.11.1"
+  }
+}

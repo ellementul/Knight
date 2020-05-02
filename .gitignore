@@ -1,3 +1,10 @@
+#IDE
+*.sublime-project
+*.sublime-workspace
+
+#compiled file
+public/bundle.js
+
 # Logs
 logs
 *.log
