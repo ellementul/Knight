@@ -26,7 +26,8 @@
   "homepage": "https://github.com/ellementul/Knight#readme",
   "dependencies": {
     "node-static": "^0.7.11",
-    "pixi.js": "^5.2.3"
+    "pixi.js": "^5.2.3",
+    "uuid": "^8.0.0"
   },
   "devDependencies": {
     "browserify": "^16.5.1",
