@@ -1,8 +1,41 @@
-const PIXI = require("pixi.js");
+const PIXI    = require("pixi.js");
+require("./lib/math.js")(PIXI.Point);
+
+const textures    = require('./public/data/textures.json');
+const animations  = require('./public/data/animations.json');
+const actorStates = require('./public/data/actor_states.json');
+
+
+class DisplayPerson {
+	constructor(actor, states){
+		this.actor  = actor;
+		this.states = states;
+
+		for (let key in states){
+			states[key].anchor.set(0.5, 1);
+			states[key].animationSpeed = 0.05;
+		}
+
+		this.setState('idle');
+	}
+
+	setState(stateKey){
+		if(this.state == stateKey)
+			return;
+
+		this.actor.removeChildren();
+
+		let state = this.states[stateKey];
+		state.play();
+
+		this.state = stateKey;
+		this.actor.addChild(state);
+	}
+}
 
 class Display {
 
-	constructor(){
+	constructor(onReady){
 		const app = new PIXI.Application({ 
 			backgroundColor: 0x1099bb, 
 			width: window.screen.width, 
@@ -10,52 +43,124 @@ class Display {
 		});
 		document.body.appendChild(app.view);
 		this.stage = app.stage;
+		this.screen = app.screen;
+		this.ticker = app.ticker;
 
 		this.tileSize = 64;
 		this.newTiles = [];
 
-		this.tileTextures = [ 
-			PIXI.Texture.from('empty.png'), 
-			PIXI.Texture.from('ground.png'),
-			PIXI.Texture.from('grass.png'),
-		];
+		this.actors  = new Map();
+		this.persons = new Map();
 
-		this.actorTextures = [
-			PIXI.Texture.from('empty_actor.png'), 
-			PIXI.Texture.from('knight.png'),
-		];
+		for (let name in textures){
+			app.loader.add(name, "./data/" + textures[name]);
+		}
 
-		this.actors = new Map();
+		let background = new PIXI.Sprite.from('./data/background.jpg');
+			this.stage.addChild(background);
 
-		let background = new PIXI.Sprite.from('background.jpg');
-		this.stage.addChild(background);
+		app.loader.load(onLoaded.bind(this));
+
 		
-		app.ticker.add(this.drawTiles.bind(this));
+		function onLoaded(){
+			this.tileTextures = [ 
+				PIXI.Texture.from('empty'), 
+				PIXI.Texture.from('ground'),
+				PIXI.Texture.from('grass'),
+			];
+
+			this.buildAnims(animations);
+
+			this.actorStates = [];
+			for (let actorKey in actorStates){
+				this.actorStates[actorKey] = [];
+
+				for (let stateKey in actorStates[actorKey])
+					this.actorStates[actorKey][stateKey] = new PIXI.AnimatedSprite(this.animes[ actorStates[actorKey][stateKey] ]);
+				
+			}
+			
+			app.ticker.add(this.drawTiles.bind(this));
+
+			onReady(this);
+		}
+
+
+		
+	}
+
+	bindCamera(actor){
+		this.ticker.add(this.moveCamera.bind(this, actor));
+	}
+
+	moveCamera(actor, delta){
+		let cameraSens = 0.0000001;
+
+		let center  = new PIXI.Point(this.screen.width / 2, this.screen.height / 2);
+		let toPoint = new PIXI.Point().copyFrom( actor.position );
+
+		toPoint = toPoint.mulNum(-1).add(center);
+		delta  *= Math.pow( toPoint.add(this.currentLevel.position).mod(), 2);
+
+		this.moveActor( this.currentLevel, toPoint, delta * cameraSens);
+	}
+
+	moveActor(actor, toPoint, partOfDist){
+		let beginPoint = new PIXI.Point().copyFrom( actor.position );
+
+		let distVec  = toPoint.sub(beginPoint);
+		let deltaVec = distVec.mulNum(partOfDist);
+
+		actor.position.copyFrom( deltaVec.add(beginPoint) );
+	}
+
+	buildAnims(anim_array){
+
+		for (let key in anim_array)
+			anim_array[key] = anim_array[key].map(frame => PIXI.Texture.from(frame));
+
+		this.animes = anim_array;
 	}
 
 	drawActor({ id, coords: { x, y }, texId }){
-		let sprite = new PIXI.Sprite(this.actorTextures[texId]);
+
 		let actor  = new PIXI.Container();
-
-		sprite.anchor.set(0, 1);
-
-		actor.addChild(sprite);
-
-		this.actors.set(id, actor);
 
 		actor.x = x * this.tileSize;
 		actor.y = y * this.tileSize;
 
 		actor.zIndex = 1;
+		
+		let states = this.actorStates[texId];
 
-		this.currentLevel.addChild(actor);
+		let person  = new DisplayPerson(actor, states);
+
+		this.actors.set(id, person.actor);
+		this.persons.set(id, person);		
+
+		this.currentLevel.addChild(person.actor);
+
+		if(texId == 'knight')
+			this.bindCamera(person.actor);
+
 	}
 
-	updateActor({ id, coords: { x, y } }){
+	updateActor({ id, coords: { x, y }, state }){
 		let actor =  this.actors.get(id);
 
-		actor.x = x * this.tileSize;
-		actor.y = y * this.tileSize;
+		x *= this.tileSize;
+		y *= this.tileSize;
+
+		let sign = Math.sign(x - actor.x) || 1;
+
+		actor.position.set(x, y);
+
+		let person =  this.persons.get(id);
+		if(person){
+			person.actor.scale.x = sign;
+			person.setState(state);
+		}
+
 	}
 
 	drawLevel(){

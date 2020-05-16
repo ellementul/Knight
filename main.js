@@ -3,10 +3,12 @@ require('./lib/mof.js');
 const Level   = require("./game_level.js");
 const Display = require("./display.js");
 
+const display = new Display(onLoad);
 
-
-
-console.log( new Level(new Display(), {
-		mapSizes: {x: 15, y: 15}
-	}
-));
+function onLoad(display){
+	
+	console.log( new Level(display, {
+			mapSizes: {x: 15, y: 15}
+		}
+	));
+}

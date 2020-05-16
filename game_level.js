@@ -15,7 +15,7 @@ class GamerController {
 			//83 : "",
 			65 : "left",
 			//87 : "",
-			//32 : "hit",
+			32 : "jump",
 		};
 
 		setInterval(() => { 
@@ -30,28 +30,47 @@ class GamerController {
 
 
 class Person {
-	constructor(level, actorId, ClassController){
+	constructor(level, actor, ClassController){
 		this.level   = level;
-		this.actorId = actorId;
+		this.actor = actor;
 
 		let controller = new ClassController(getSignal.bind(this));
+
+		this.actor.state = 'idle';
 
 		function getSignal(signal) {
 			if(typeof this[signal] == "function")
 				this[signal]();
+
+			//if(this.actor.isFalling)
 		}
 	}
 
 	left(){
-		this.level.setSpeed(this.actorId, -1);
+		this.actor.speed.x = -1;
+		this.actor.state = 'walk';
 	}
 
 	right(){
-		this.level.setSpeed(this.actorId, 1);
+		this.actor.speed.x = 1;
+		this.actor.state = 'walk';
 	}
 
 	stop(){
-		this.level.setSpeed(this.actorId, 0);
+		this.actor.speed.x = 0;
+		this.actor.state = 'idle';
+	}
+
+	jump(){
+		if(this.actor.isFalling)
+			return;
+
+		this.actor.speed.y = -3;
+		setTimeout(this.endJump.bind(this), 1000);
+	}
+
+	endJump(){
+		this.actor.speed.y = 0;
 	}
 }
 
@@ -72,13 +91,13 @@ class Level {
 		this.speedScale = 0.002;
 		this.gravity    = {x: 0, y: 1};
 
-		let actorId = this.addActor({
-			texId: 1,
+		let actor = this.addActor({
+			texId:  'knight',
 			speed:  { x: 0, y: 0 },
 			coords: { x: 3, y: 3 },
 		});
 
-		new Person(this, actorId, GamerController);
+		new Person(this, actor, GamerController);
 
 		loop.addCall(this.stepMove.bind(this));
 	}
@@ -99,19 +118,21 @@ class Level {
 
 		let x = actor.coords.x + speed.x * delta;
 		let y = actor.coords.y + speed.y * delta;
-		let is_changed = false;
+		let changed = {};
 
 		if( this.blocks.isEmpty({x, y: actor.coords.y}) ){
+			changed.x   = x - actor.coords.x;
 			actor.coords.x = x;
-			is_changed = true;
 		}
 
 		if( this.blocks.isEmpty({x: actor.coords.x, y}) ){
+			changed.y   = y - actor.coords.y;
 			actor.coords.y = y;
-			is_changed = true;
 		}
 
-		if(is_changed)
+		actor.isFalling = !!changed.y;
+
+		if(changed.x || changed.y)
 			this.display.updateActor(actor);
 	}
 
@@ -120,17 +141,7 @@ class Level {
 		this.actors.set(actor.id, actor);
 		this.display.drawActor(actor);
 
-		return actor.id;
-	}
-
-	setSpeed(actorId, x, y) {
-		let actor = this.actors.get(actorId);
-
-		if(x || x === 0)
-			actor.speed.x = x;
-
-		if(y || y === 0)
-			actor.speed.y = y;
+		return actor;
 	}
 
 	addedBlock(block) {
