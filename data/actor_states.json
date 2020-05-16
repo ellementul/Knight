@@ -1,6 +1,7 @@
 {
 	"knight": {
 		"idle" : "knight_idle",
-		"walk" : "knight_walk"
+		"walk" : "knight_walk",
+		"fall" : "knight_fall"
 	}
 }

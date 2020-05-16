@@ -22,14 +22,17 @@ function CrKeyboard(sendFunc, actions){
 	
 	function eventKeyDouwn(event){
 		if(actions[event.keyCode]){
+			event.preventDefault();
 			var key_code = event.keyCode;
 			keys_is_down[key_code] = true;
 		}
 	}
 
 	function eventKeyUp(event){
-		if(actions[event.keyCode])
+		if(actions[event.keyCode]){
+			event.preventDefault();
 			keys_is_down[event.keyCode] = false;
+		}
 	}
 
 	function sendKey(key_code){

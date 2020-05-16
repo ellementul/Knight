@@ -36,14 +36,12 @@ class Person {
 
 		let controller = new ClassController(getSignal.bind(this));
 
-		this.actor.state = 'idle';
+		this.actor.state = 'fall';
 
 		function getSignal(signal) {
-			if(typeof this[signal] == "function")
-				this[signal]();
-
-			//if(this.actor.isFalling)
-		}
+			this[signal]();
+			this.isFall();
+		}		
 	}
 
 	left(){
@@ -65,12 +63,19 @@ class Person {
 		if(this.actor.isFalling)
 			return;
 
-		this.actor.speed.y = -3;
-		setTimeout(this.endJump.bind(this), 1000);
+		let JumpSpeed = -4;
+
+		loop.addCall(() => {
+			this.actor.speed.y = JumpSpeed;
+			JumpSpeed *= 0.99;
+
+			return Math.abs(JumpSpeed) > 0.01;
+		})
 	}
 
-	endJump(){
-		this.actor.speed.y = 0;
+	isFall(){
+		if(this.actor.isFalling)
+			this.actor.state = 'fall';
 	}
 }
 
@@ -89,7 +94,7 @@ class Level {
 		this.actors = new Map();
 
 		this.speedScale = 0.002;
-		this.gravity    = {x: 0, y: 1};
+		this.gravity    = {x: 0, y: 2};
 
 		let actor = this.addActor({
 			texId:  'knight',
@@ -121,19 +126,18 @@ class Level {
 		let changed = {};
 
 		if( this.blocks.isEmpty({x, y: actor.coords.y}) ){
-			changed.x   = x - actor.coords.x;
+			changed.x = x - actor.coords.x;
 			actor.coords.x = x;
 		}
 
 		if( this.blocks.isEmpty({x: actor.coords.x, y}) ){
-			changed.y   = y - actor.coords.y;
+			changed.y = y - actor.coords.y;
 			actor.coords.y = y;
 		}
 
 		actor.isFalling = !!changed.y;
 
-		if(changed.x || changed.y)
-			this.display.updateActor(actor);
+		this.display.updateActor(actor);
 	}
 
 	addActor(actor) {
