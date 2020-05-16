@@ -1,9 +1,9 @@
 const PIXI    = require("pixi.js");
 require("./lib/math.js")(PIXI.Point);
 
-const textures    = require('./public/data/textures.json');
-const animations  = require('./public/data/animations.json');
-const actorStates = require('./public/data/actor_states.json');
+const textures    = require('./data/textures.json');
+const animations  = require('./data/animations.json');
+const actorStates = require('./data/actor_states.json');
 
 
 class DisplayPerson {

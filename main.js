@@ -8,7 +8,7 @@ const display = new Display(onLoad);
 function onLoad(display){
 	
 	console.log( new Level(display, {
-			mapSizes: {x: 15, y: 15}
+			mapSizes: {x: 150, y: 20}
 		}
 	));
 }

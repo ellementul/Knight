@@ -1,5 +1,6 @@
 {
 	"empty_anim" : [ "empty_frame" ],
 	"knight_idle": [ "knight_idle_1", "knight_idle_2" ],
-	"knight_walk": [ "knight_walk_1", "knight_walk_2" ]
+	"knight_walk": [ "knight_walk_1", "knight_walk_2" ],
+	"knight_fall": [ "knight_fall" ]
 }
