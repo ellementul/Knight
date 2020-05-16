@@ -6,8 +6,8 @@
   "scripts": {
     "http": "node ./http.js",
     "test": "test.js",
-    "build-js": "browserify ./main.js -o ./public/bundle.js -d",
-    "watch-js": "watchify ./main.js -o ./public/bundle.js -d"
+    "build-js": "browserify ./main.js -o ./bundle.js -d",
+    "watch-js": "watchify ./main.js -o ./bundle.js -d"
   },
   "repository": {
     "type": "git",

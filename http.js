@@ -1,4 +1,4 @@
-var file = new (require('node-static')).Server('./public');
+var file = new (require('node-static')).Server('./');
 
 require('http').createServer(function (request, response) {
     request.addListener('end', function () {

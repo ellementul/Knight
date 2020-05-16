@@ -1,0 +1,12 @@
+{
+	"empty"  : "empty.png", 
+	"ground" : "ground.png",
+	"grass"  : "grass.png",
+
+	"empty_frame"   : "empty_actor.png",
+
+	"knight_idle_1" : "knight_idle.png",
+	"knight_idle_2" : "knight_idle_2.png",
+	"knight_walk_1" : "knight_walk_1.png",
+	"knight_walk_2" : "knight_walk_2.png"
+}
