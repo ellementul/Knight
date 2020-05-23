@@ -3,12 +3,41 @@ const PhysicLoop = require("./lib/physic_loop.js");
 let Seeds = [
 	{
 		blockType: 1,
-		coordShift: {x: 1, y: 1},
+		coordShift: {x: 1, y: 0},
 	},
 	{
 		blockType: 2,
 		coordShift: {x: 0, y: 1},
+	},
+	{
+		blockType: 1,
+		coordShift: {x: 2, y: 0},
 	}
+];
+
+let Branches = {
+	ground_and_hole: {
+		ground: {
+			chance: 1,
+			template: [0, 1],
+		},
+		hole: {
+			chance: 1,
+			template: [0, 1],
+		},
+	}
+};
+
+let BlockTypes = [
+	{ texId: 0 },
+	{ 
+		texId: 2,
+		branches: 'ground_and_hole',
+	},
+	{ 
+		texId: 1,
+		seed: 1,
+	},
 ];
 
 const loop = new PhysicLoop();
@@ -45,21 +74,47 @@ class Generator {
 		template.forEach(this.addSeed.bind(this, coords));
 	}
 
+	addBranches(coords, idBranches){
+
+		let branches = Branches[idBranches];
+
+		let chanceSumm  = 0;
+		for (let key in branches){
+			let branch = branches[key];
+
+			chanceSumm += branch.chance; 
+		}
+
+
+		let chanceRanges = {};
+		let chanceLimit = 0;
+		for (let key in branches){
+			let branch = branches[key];
+
+			branch.chance    /= chanceSumm;
+			chanceRanges[key] = [chanceLimit, chanceLimit + branch.chance];
+			chanceLimit      += branch.chance;
+		}
+
+
+		let randVal    = Math.random();
+		let changedKey = false;
+		for (let key in chanceRanges){
+			let range = chanceRanges[key];
+
+			if(randVal >= range[0] && randVal <= range[1]){
+				changedKey = key;
+				break;
+			}
+		}
+
+		if(!changedKey)
+			throw new Error("changed_key: " + changedKey);
+
+		this.addTemplate(coords, branches[changedKey].template);
+	}
 	
 }
-
-
-let BlockTypes = [
-	{ texId: 0 },
-	{ 
-		texId: 2,
-		template: [0, 1],
-	},
-	{ 
-		texId: 1,
-		seed: 1,
-	},
-];
 
 class BlockSystem {
 	constructor(level, { mapSizes: { x, y } }){
@@ -104,6 +159,9 @@ class BlockSystem {
 
 				if( BlockTypes[type].template !== undefined )
 					this.gen.addTemplate(coords, BlockTypes[type].template);
+
+				if( BlockTypes[type].branches !== undefined )
+					this.gen.addBranches(coords, BlockTypes[type].branches);
 
 				return true;
 			}
