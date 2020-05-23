@@ -12,7 +12,15 @@ let Seeds = [
 	{
 		blockType: 1,
 		coordShift: {x: 2, y: 0},
-	}
+	},
+	{
+		blockType: 3,
+		coordShift: {x: 1, y: 1},
+	},
+	{
+		blockType: 2,
+		coordShift: {x: 2, y: 1},
+	},
 ];
 
 let Branches = {
@@ -23,7 +31,7 @@ let Branches = {
 		},
 		hole: {
 			chance: 1,
-			template: [0, 1],
+			template: [2, 3],
 		},
 	}
 };
@@ -37,6 +45,10 @@ let BlockTypes = [
 	{ 
 		texId: 1,
 		seed: 1,
+	},
+	{ 
+		texId: 2,
+		template: [1],
 	},
 ];
 
