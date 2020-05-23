@@ -26,12 +26,12 @@ let Seeds = [
 let Branches = {
 	ground_and_hole: {
 		ground: {
-			chance: 1,
+			chance: 5,
 			template: [0, 1],
 		},
 		hole: {
 			chance: 1,
-			template: [2, 3],
+			template: [1, 2, 3, 4],
 		},
 	}
 };
