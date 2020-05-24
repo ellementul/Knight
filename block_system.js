@@ -10,7 +10,7 @@ let Seeds = {
 		coordShift: {x: 3, y: 0},
 	},
 	'hole' : {
-		blockType: 'ground',
+		blockType: 'hole',
 		coordShift: {x: 2, y: 1},
 	},
 	'grass_right_end' : {
@@ -58,6 +58,10 @@ let BlockTypes = {
 		texId: 'grass_right_end',
 		reflect: true,
 		template: ['ground01', 'grass'],
+	},
+	'hole': { 
+		texId: 'hole',
+		seed: 'ground01',
 	},
 };
 
