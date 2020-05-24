@@ -2,6 +2,7 @@
 	"empty"  : "empty.png", 
 	"ground" : "ground.png",
 	"grass"  : "grass.png",
+	"grass_right_end" : "grass_right_end.png",
 
 	"empty_frame"   : "empty_actor.png",
 

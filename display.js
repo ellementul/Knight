@@ -62,12 +62,16 @@ class Display {
 		app.loader.load(onLoaded.bind(this));
 
 		
-		function onLoaded(){
-			this.tileTextures = [ 
-				PIXI.Texture.from('empty'), 
-				PIXI.Texture.from('ground'),
-				PIXI.Texture.from('grass'),
-			];
+		function onLoaded(loader, resource){
+			this.tileTextures = {};
+
+			for (let name in textures){
+
+				if(!resource[name].error)
+					this.tileTextures[name] = PIXI.Texture.from(name);
+				else
+					this.tileTextures[name] = PIXI.Texture.from('empty');
+			}
 
 			this.buildAnims(animations);
 
@@ -100,7 +104,7 @@ class Display {
 		let toPoint = new PIXI.Point().copyFrom( actor.position );
 
 		toPoint = toPoint.mulNum(-1).add(center);
-		delta  *= Math.pow( toPoint.add(this.currentLevel.position).mod(), 2);
+		delta  *= Math.pow( toPoint.sub(this.currentLevel.position).mod(), 2);
 
 		this.moveActor( this.currentLevel, toPoint, delta * cameraSens);
 	}
@@ -175,11 +179,20 @@ class Display {
 	drawTiles(){
 		this.newTiles.forEach(tile => {
 			
+			let texture = this.tileTextures.empty;
 
-			let drawTile = new PIXI.Sprite(this.tileTextures[tile.texId]);
+			if(this.tileTextures[tile.texId].valid)
+				texture = this.tileTextures[tile.texId];
+
+			let drawTile = new PIXI.Sprite(texture);
 
 			drawTile.x = tile.coords.x * this.tileSize;
 			drawTile.y = tile.coords.y * this.tileSize;
+
+			if(tile.reflect){
+				drawTile.scale.x = -1;
+				drawTile.anchor.x = 1;
+			}
 
 			this.currentLevel.addChild(drawTile);
 		});

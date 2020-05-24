@@ -1,56 +1,65 @@
 const PhysicLoop = require("./lib/physic_loop.js");
 
-let Seeds = [
-	{
-		blockType: 1,
+let Seeds = {
+	'grass' : {
+		blockType: 'grass',
 		coordShift: {x: 1, y: 0},
 	},
-	{
-		blockType: 2,
-		coordShift: {x: 0, y: 1},
+	'grass_left_end' : {
+		blockType: 'grass_left_end',
+		coordShift: {x: 3, y: 0},
 	},
-	{
-		blockType: 1,
-		coordShift: {x: 2, y: 0},
-	},
-	{
-		blockType: 3,
-		coordShift: {x: 1, y: 1},
-	},
-	{
-		blockType: 2,
+	'hole' : {
+		blockType: 'ground',
 		coordShift: {x: 2, y: 1},
 	},
-];
+	'grass_right_end' : {
+		blockType: 'grass_right_end',
+		coordShift: {x: 1, y: 0},
+	},
+	'ground01' : {
+		blockType: 'ground',
+		coordShift: {x: 0, y: 1},
+	},
+	'ground31' : {
+		blockType: 'ground',
+		coordShift: {x: 3, y: 1},
+	},
+};
 
 let Branches = {
-	ground_and_hole: {
-		ground: {
-			chance: 5,
-			template: [0, 1],
+	grass_and_hole: {
+		grass: {
+			chance: 3,
+			template: ['ground01', 'grass'],
 		},
 		hole: {
 			chance: 1,
-			template: [1, 2, 3, 4],
+			template: ['ground01', 'grass_right_end', 'hole', 'grass_left_end'],
 		},
 	}
 };
 
-let BlockTypes = [
-	{ texId: 0 },
-	{ 
-		texId: 2,
-		branches: 'ground_and_hole',
+let BlockTypes = {
+	'empty': { texId: 'empty' },
+	'grass': { 
+		texId: 'grass',
+		branches: 'grass_and_hole',
 	},
-	{ 
-		texId: 1,
-		seed: 1,
+	'ground': { 
+		texId: 'ground',
+		seed: 'ground01',
 	},
-	{ 
-		texId: 2,
-		template: [1],
+	'grass_right_end': { 
+		texId: 'grass_right_end',
+		seed: 'ground01',
 	},
-];
+	'grass_left_end': { 
+		texId: 'grass_right_end',
+		reflect: true,
+		template: ['ground01', 'grass'],
+	},
+};
 
 const loop = new PhysicLoop();
 
@@ -139,7 +148,7 @@ class BlockSystem {
 
 		this.gen = new Generator(this.addBlock.bind(this));
 
-		this.addBlock({ coords: {x: 0, y: 6}, type: 1 });
+		this.addBlock({ coords: {x: 0, y: 6}, type: 'grass' });
 	}
 
 	isEmpty({ x, y }){
@@ -159,10 +168,15 @@ class BlockSystem {
 
 		if( !this.isOutMap(coords) )
 			if( !this.data[x][y] ){
+
+				if(!BlockTypes[type])
+					type = 'empty';
+
 				this.data[x][y] = type;
 
 				this.level.addedBlock({
 					texId: BlockTypes[type].texId,
+					reflect: BlockTypes[type].reflect,
 					coords: {x, y}
 				});
 
@@ -187,6 +201,7 @@ class BlockSystem {
 				if(block !== null)
 					blocks.push({
 						texId: BlockTypes[block].texId,
+						reflect: BlockTypes[block].reflect,
 						coords: {x, y}
 					});
 			});
