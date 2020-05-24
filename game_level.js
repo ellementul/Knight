@@ -67,9 +67,10 @@ class Person {
 
 		loop.addCall(() => {
 			this.actor.speed.y = JumpSpeed;
-			JumpSpeed *= 0.99;
 
-			return Math.abs(JumpSpeed) > 0.01;
+			JumpSpeed *= 0.94;
+
+			return JumpSpeed < 0.01;
 		})
 	}
 
@@ -94,7 +95,7 @@ class Level {
 		this.actors = new Map();
 
 		this.speedScale = 0.002;
-		this.gravity    = {x: 0, y: 2};
+		this.gravity    = {x: 0, y: 1};
 
 		let actor = this.addActor({
 			texId:  'knight',
@@ -121,21 +122,25 @@ class Level {
 			y: actor.speed.y + this.gravity.y,
 		};
 
-		let x = actor.coords.x + speed.x * delta;
-		let y = actor.coords.y + speed.y * delta;
-		let changed = {};
+		let min_step = 0.01;
+		for(delta; delta > 0; delta = delta - min_step){
 
-		if( this.blocks.isEmpty({x, y: actor.coords.y}) ){
-			changed.x = x - actor.coords.x;
-			actor.coords.x = x;
+			let x = actor.coords.x + speed.x * min_step;
+			let y = actor.coords.y + speed.y * min_step;
+			let changed = {};
+
+			if( this.blocks.isEmpty({x, y: actor.coords.y}) ){
+				changed.x = x - actor.coords.x;
+				actor.coords.x = x;
+			}
+
+			if( this.blocks.isEmpty({x: actor.coords.x, y}) ){
+				changed.y = y - actor.coords.y;
+				actor.coords.y = y;
+			}
+
+			actor.isFalling = !!changed.y;
 		}
-
-		if( this.blocks.isEmpty({x: actor.coords.x, y}) ){
-			changed.y = y - actor.coords.y;
-			actor.coords.y = y;
-		}
-
-		actor.isFalling = !!changed.y;
 
 		this.display.updateActor(actor);
 	}

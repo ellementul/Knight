@@ -148,7 +148,10 @@ class BlockSystem {
 
 		this.gen = new Generator(this.addBlock.bind(this));
 
-		this.addBlock({ coords: {x: 0, y: 6}, type: 'grass' });
+		let i = 6;
+		while(i--){
+			this.addBlock({ coords: {x: i, y: 6}, type: 'grass' });
+		}
 	}
 
 	isEmpty({ x, y }){
